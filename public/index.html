@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestion des Transports - Lomé</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Agbanté</h1>
+
+      <section class="transport-section">
+        <h2>Enregistrer un Transport</h2>
+        <div class="input-group">
+          <label for="transportType">Type de Transport :</label>
+          <select id="transportType">
+            <option value="">Sélectionner un type</option>
+            <option value="sac">Sac (500 FCFA)</option>
+            <option value="bal">Bal (2000 FCFA)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="quantity">Quantité :</label>
+          <input type="number" id="quantity" min="1" value="1" />
+        </div>
+        <p class="calculated-amount">
+          Montant estimé : <span id="calculatedAmount">0 FCFA</span>
+        </p>
+        <div class="buttons">
+          <button id="addTransportBtn" class="add-btn">
+            Enregistrer Transport
+          </button>
+        </div>
+      </section>
+
+      <hr />
+
+      <section class="summary-section">
+        <h2>Montant A payer</h2>
+        <p class="total-summary">
+          Total : <span id="totalAmountSummary">0 FCFA</span>
+        </p>
+      </section>
+
+      <hr />
+
+      <section class="history-section">
+        <h2>Historique des Transports</h2>
+        <table id="transportsTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Qté</th>
+              <th>Montant</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,336 @@
+body {
+  font-family: "Arial", sans-serif;
+  background-color: #eef2f7; /* Light blue-grey background */
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.container {
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 900px;
+  box-sizing: border-box;
+  margin: 20px;
+}
+
+h1,
+h2 {
+  color: #2c3e50; /* Dark blue-grey */
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+h1 {
+  font-size: 2.5em;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+h2 {
+  font-size: 1.8em;
+  color: #34495e;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+
+h3 {
+  color: #34495e;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 1.3em;
+}
+
+/* Input Group Styles */
+.input-group {
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+  font-size: 1.05em;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group select {
+  width: calc(100% - 24px); /* Account for padding and border */
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.input-group input[type="text"]:focus,
+.input-group input[type="number"]:focus,
+.input-group select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+.calculated-amount {
+  text-align: right;
+  font-size: 1.1em;
+  color: #34495e;
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.calculated-amount span {
+  color: #27ae60; /* Green for positive values */
+  font-size: 1.2em;
+}
+
+/* Button Styles */
+.buttons {
+  text-align: center;
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+
+.buttons button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 0 10px; /* Space between buttons if multiple */
+  min-width: 150px;
+}
+
+.add-btn {
+  background-color: #28a745; /* Green */
+}
+.add-btn:hover {
+  background-color: #218838;
+  transform: translateY(-2px);
+}
+.add-btn:active {
+  transform: translateY(0);
+}
+
+.delete-btn {
+  background-color: #dc3545; /* Red */
+  padding: 8px 12px;
+  font-size: 0.9em;
+  min-width: unset; /* Override min-width from general button */
+}
+.delete-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid #e0e0e0;
+  margin: 40px 0;
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  overflow: hidden; /* Ensures rounded corners */
+}
+
+th,
+td {
+  border: 1px solid #e0e0e0;
+  padding: 12px 15px;
+  text-align: left;
+}
+
+th {
+  background-color: #f0f8ff; /* Light blue header */
+  color: #333;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.95em;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.summary-section .total-summary {
+  font-size: 1.5em;
+  text-align: center;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-top: 20px;
+}
+
+.summary-section .total-summary span {
+  color: #27ae60;
+  font-size: 1.3em;
+}
+
+.history-section td:nth-child(4) {
+  /* Target the Amount column */
+  font-weight: bold;
+  color: #27ae60; /* Green for amounts */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .container {
+    padding: 15px;
+    margin: 10px auto;
+    box-shadow: none; /* Remove shadow on small screens for cleaner look */
+  }
+
+  h1 {
+    font-size: 2em;
+    margin-bottom: 20px;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    margin-top: 25px;
+    margin-bottom: 15px;
+  }
+
+  h3 {
+    font-size: 1.1em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+
+  .input-group label {
+    font-size: 0.95em;
+    margin-bottom: 5px;
+  }
+
+  .input-group input,
+  .input-group select {
+    padding: 10px;
+    font-size: 0.9em;
+  }
+
+  .calculated-amount {
+    font-size: 1em;
+  }
+  .calculated-amount span {
+    font-size: 1.1em;
+  }
+
+  .buttons {
+    flex-direction: column; /* Stack buttons vertically */
+    margin-top: 20px;
+    margin-bottom: 15px;
+  }
+
+  .buttons button {
+    width: 100%; /* Full width for stacked buttons */
+    margin: 0 0 15px 0; /* Add bottom margin for spacing */
+    padding: 10px 15px;
+    font-size: 1em;
+  }
+  .buttons button:last-child {
+    margin-bottom: 0; /* No bottom margin for the last button */
+  }
+
+  /* Table adjustments (makes tables stack on small screens) */
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+  }
+
+  thead tr {
+    position: absolute;
+    top: -9999px;
+    left: -9999px; /* Hide table headers */
+  }
+
+  tr {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  td {
+    border: none; /* Remove individual cell borders */
+    border-bottom: 1px solid #eee;
+    position: relative;
+    padding-left: 50%; /* Make space for data-label */
+    text-align: right;
+    font-size: 0.9em;
+  }
+
+  td:before {
+    content: attr(data-label); /* Use data-label for pseudo-headers */
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #555;
+  }
+
+  /* Specific data-labels for history table */
+  .history-section td:nth-of-type(1):before {
+    content: "Date:";
+  }
+  .history-section td:nth-of-type(2):before {
+    content: "Type:";
+  }
+  .history-section td:nth-of-type(3):before {
+    content: "Qté:";
+  }
+  .history-section td:nth-of-type(4):before {
+    content: "Montant:";
+  }
+  .history-section td:nth-of-type(5):before {
+    content: "Action:";
+  }
+
+  .history-section td:nth-of-type(5) {
+    text-align: center; /* Center the delete button */
+    padding-left: 6px; /* Adjust padding for delete button */
+  }
+  .history-section td:nth-of-type(5):before {
+    display: none; /* Hide label for action column */
+  }
+
+  .summary-section .total-summary {
+    font-size: 1.2em;
+  }
+  .summary-section .total-summary span {
+    font-size: 1.1em;
+  }
+}
