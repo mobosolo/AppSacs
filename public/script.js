@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Définition des prix (doit correspondre à ceux du backend pour la cohérence de l'estimation) ---
   const PRICES = {
     sac: 500,
-    bal: 2000,
+    bal: 2500,
   };
 
   // --- Fonctions utilitaires ---
