@@ -1,10 +1,11 @@
-const CACHE_NAME = "transports-cache-v1";
+const CACHE_NAME = "transports-cache-v2"; // Change le nom du cache à chaque mise à jour
 const urlsToCache = [
   "/",
   "/index.html",
   "/style.css",
   "/script.js",
   "/manifest.json",
+  // Ajoute tous les fichiers dont l'application a besoin
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
 ];
@@ -15,6 +16,22 @@ self.addEventListener("install", (event) => {
     caches.open(CACHE_NAME).then((cache) => {
       console.log("Opened cache");
       return cache.addAll(urlsToCache);
+    })
+  );
+});
+
+// Supprime les anciens caches
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log("Deleting old cache:", cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
     })
   );
 });
