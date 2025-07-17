@@ -27,7 +27,7 @@ pool.on("error", (err) => {
 // --- Définition des prix de transport (constantes) ---
 const PRICES = {
   sac: 500, // 500 FCFA par sac
-  bal: 2000, // 2000 FCFA par bal
+  bal: 2500, // 2500 FCFA par bal
 };
 
 // --- Création de la table 'transports' si elle n'existe pas ---
