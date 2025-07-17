@@ -20,6 +20,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Éléments d'affichage des données
   const totalAmountSummarySpan = document.getElementById("totalAmountSummary");
+  const sacCountSpan = document.getElementById("sacCount"); // Nouveau
+  const balCountSpan = document.getElementById("balCount"); // Nouveau
   const transportsTableBody = document.querySelector("#transportsTable tbody");
 
   // --- Définition des prix (doit correspondre à ceux du backend pour la cohérence de l'estimation) ---
@@ -172,17 +174,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Charge et affiche le montant total dû au travailleur
+  // Charge et affiche le montant total et les quantités
   async function fetchSummary() {
     try {
       const summary = await fetchAPI("/api/summary");
 
+      // Mettre à jour le montant total
       totalAmountSummarySpan.textContent = formatFCFA(
         summary.total_amount || 0
       );
+
+      // Mettre à jour le nombre de sacs et de bals
+      sacCountSpan.textContent = summary.counts.sac || 0;
+      balCountSpan.textContent = summary.counts.bal || 0;
     } catch (error) {
       console.error("Erreur lors du chargement du résumé:", error);
       totalAmountSummarySpan.textContent = "Erreur";
+      sacCountSpan.textContent = "Erreur";
+      balCountSpan.textContent = "Erreur";
     }
   }
 
