@@ -6,7 +6,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); // Middleware pour parser les requêtes JSON
+app.use(express.json());
 
 // --- Configuration de la base de données PostgreSQL ---
 const pool = new Pool({

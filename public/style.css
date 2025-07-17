@@ -168,7 +168,7 @@ button:disabled {
   background-color: #c82333;
 }
 
-/* --- Responsive Design (pour les petits écrans) --- */
+/* --- Responsive Design --- */
 
 @media (max-width: 768px) {
   body {

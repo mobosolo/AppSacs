@@ -179,7 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const summary = await fetchAPI("/api/summary");
 
-      // Mettre à jour le montant total
+      // Mettre à jour le montant Total
       totalAmountSummarySpan.textContent = formatFCFA(
         summary.total_amount || 0
       );
