@@ -125,24 +125,40 @@ app.get("/api/transports", async (req, res) => {
   }
 });
 
-// Route pour obtenir le résumé du montant total dû (pour l'unique travailleur)
+// Route pour obtenir le résumé du montant total et des quantités
 app.get("/api/summary", async (req, res) => {
   try {
-    const result = await pool.query(`
-            SELECT SUM(amount)::numeric as total_amount  -- Utilise ::numeric pour une meilleure compatibilité des types
-            FROM transports;
-        `);
+    const totalAmountResult = await pool.query(`
+      SELECT COALESCE(SUM(amount), 0)::numeric as total_amount
+      FROM transports;
+    `);
 
-    // Convertis explicitement en entier JavaScript si nécessaire, même si ::numeric devrait suffire
-    const totalAmount = parseInt(result.rows[0].total_amount) || 0;
+    const transportCountsResult = await pool.query(`
+      SELECT type, COALESCE(SUM(quantity), 0)::int as total_quantity
+      FROM transports
+      GROUP BY type;
+    `);
 
-    res.json({ total_amount: totalAmount }); // S'assure que c'est bien un nombre ici
+    // Formater les résultats pour les rendre faciles à utiliser
+    const totalAmount = parseInt(totalAmountResult.rows[0].total_amount) || 0;
+    const transportCounts = {
+      sac: 0,
+      bal: 0,
+    };
+
+    transportCountsResult.rows.forEach((row) => {
+      transportCounts[row.type] = row.total_quantity;
+    });
+
+    res.json({
+      total_amount: totalAmount,
+      counts: transportCounts,
+    });
   } catch (err) {
     console.error("Erreur lors du chargement du résumé:", err);
     res.status(500).json({ error: err.message });
   }
 });
-
 // Route pour supprimer un transport spécifique
 app.delete("/api/transports/:id", async (req, res) => {
   const transportId = req.params.id;
