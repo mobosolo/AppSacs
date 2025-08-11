@@ -28,7 +28,8 @@ h2 {
 
 .form-card,
 .summary-card,
-.history-card {
+.history-card,
+.workers-summary-card {
   background-color: #f9f9f9;
   padding: 25px;
   border-radius: 10px;
@@ -168,7 +169,28 @@ button:disabled {
   background-color: #c82333;
 }
 
-/* --- Responsive Design --- */
+/* --- Styles de la section de résumé par transporteur --- */
+#workersSummaryContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.worker-summary-card {
+  background-color: #e6f3ff;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #cce5ff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  flex: 1 1 300px; /* S'adapte à la taille de l'écran */
+}
+
+.worker-summary-card h3 {
+  margin: 0 0 10px 0;
+  color: #0056b3;
+}
+
+/* --- Responsive Design (pour les petits écrans) --- */
 
 @media (max-width: 768px) {
   body {

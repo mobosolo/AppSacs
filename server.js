@@ -1,182 +1,217 @@
+// Dépendances et initialisation
 const express = require("express");
 const { Pool } = require("pg");
-require("dotenv").config();
+const cors = require("cors");
 const path = require("path");
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// --- Configuration de la base de données PostgreSQL ---
+// Configuration de la connexion à la base de données PostgreSQL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Important pour Render en production (certificat auto-signé)
-  },
 });
 
-// Événements de connexion à la base de données
-pool.on("connect", () => {
-  console.log("Connecté à la base de données PostgreSQL.");
-});
-pool.on("error", (err) => {
-  console.error("Erreur de connexion à la base de données:", err);
-});
+// --- Données statiques des transporteurs et des prix ---
+const WORKERS = [
+  { id: 1, name: "Bill" },
+  { id: 2, name: "Petit" },
+  { id: 3, name: "Charles" },
+  { id: 4, name: "PetFre" },
+  { id: 5, name: "GoodMan" },
+  { id: 6, name: "Nani" },
+];
 
-// --- Définition des prix de transport (constantes) ---
 const PRICES = {
   sac: 500, // 500 FCFA par sac
   bal: 2500, // 2500 FCFA par bal
 };
 
-// --- Création de la table 'transports' si elle n'existe pas ---
-async function createTransportsTable() {
+// Fonction de création de la table (version simplifiée)
+async function createTables() {
   try {
     await pool.query(`
-            CREATE TABLE IF NOT EXISTS transports (
-                id SERIAL PRIMARY KEY,
-                type TEXT NOT NULL, -- 'sac' ou 'bal'
-                quantity INTEGER NOT NULL CHECK (quantity > 0),
-                amount INTEGER NOT NULL CHECK (amount > 0), -- Montant calculé
-                timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-            );
-        `);
+      CREATE TABLE IF NOT EXISTS transports (
+        id SERIAL PRIMARY KEY,
+        worker_id INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        quantity INTEGER NOT NULL CHECK (quantity > 0),
+        amount INTEGER NOT NULL CHECK (amount > 0),
+        timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
     console.log('Table "transports" prête ou déjà existante.');
-    // Si tu avais une ancienne version avec worker_id et que tu veux la supprimer,
-    // tu peux DÉCOMMENTER la ligne ci-dessous APRÈS la première exécution du serveur,
-    // mais cela supprimera la colonne et ses données associées.
-    // ATTENTION : À n'utiliser qu'une fois si nécessaire, et avec prudence.
-    // await pool.query(`
-    //     ALTER TABLE transports DROP COLUMN IF EXISTS worker_id;
-    // `);
-    // console.log('Colonne worker_id supprimée de la table transports (si existante).');
   } catch (err) {
-    console.error('Erreur lors de la création de la table "transports":', err);
+    console.error("Erreur lors de la création de la table:", err);
   }
 }
 
-createTransportsTable(); // Appelle cette fonction au démarrage du serveur
-
-// --- Servir les fichiers statiques (Frontend) pour le test LOCAL ---
-// Garde cette ligne pour le test local (http://localhost:3000).
-// POUR LE DÉPLOIEMENT SUR RENDER, COMMENTE OU SUPPRIME CETTE LIGNE !
-// app.use(express.static(path.join(__dirname, "public")));
+// Appelle la fonction de création des tables au démarrage du serveur
+createTables();
 
 // --- Routes API ---
 
+// Route pour obtenir les transporteurs (maintenant statique)
+app.get("/api/workers", async (req, res) => {
+  res.json(WORKERS);
+});
+
 // Route pour ajouter un transport
 app.post("/api/transports", async (req, res) => {
-  const { type, quantity } = req.body; // Le montant n'est pas envoyé par le client
+  const { type, quantity, worker_id } = req.body;
 
-  // Validations
-  if (!type || !quantity) {
+  if (!type || !quantity || !worker_id) {
     return res
       .status(400)
-      .json({ message: "Le type et la quantité sont requis." });
+      .json({
+        message: "Le type, la quantité et l'ID du transporteur sont requis.",
+      });
   }
-  if (type !== "sac" && type !== "bal") {
-    return res.status(400).json({
-      message: 'Type de transport invalide. Doit être "sac" ou "bal".',
-    });
-  }
-  if (typeof quantity !== "number" || quantity <= 0) {
-    return res
-      .status(400)
-      .json({ message: "Quantité invalide. Doit être un nombre positif." });
-  }
-
-  // Calcul automatique du montant
   const pricePerUnit = PRICES[type];
-  if (!pricePerUnit) {
-    // Au cas où le type ne correspondrait pas à un prix défini
-    return res.status(400).json({
-      message: "Type de transport non reconnu pour le calcul du prix.",
-    });
-  }
   const amount = quantity * pricePerUnit;
 
   try {
-    const result = await pool.query(
-      "INSERT INTO transports (type, quantity, amount) VALUES ($1, $2, $3) RETURNING id, timestamp;",
-      [type, quantity, amount] // Insertion du montant CALCULÉ
+    await pool.query(
+      "INSERT INTO transports (type, quantity, amount, worker_id) VALUES ($1, $2, $3, $4);",
+      [type, quantity, amount, worker_id]
     );
-    res.status(201).json({
-      message: "Transport enregistré avec succès",
-      transport: result.rows[0],
-    });
+    res.status(201).json({ message: "Transport enregistré avec succès" });
   } catch (err) {
     console.error("Erreur lors de l'ajout du transport:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Route pour obtenir tous les transports
+// Route pour obtenir tous les transports (avec le nom du transporteur)
 app.get("/api/transports", async (req, res) => {
   try {
     const result = await pool.query(`
-            SELECT id, type, quantity, amount, timestamp
-            FROM transports
-            ORDER BY timestamp DESC;
-        `);
-    res.json(result.rows);
+      SELECT id, worker_id, type, quantity, amount, timestamp
+      FROM transports
+      ORDER BY timestamp DESC;
+    `);
+
+    // Ajout du nom du transporteur à partir du tableau statique
+    const transportsWithWorkerName = result.rows.map((t) => {
+      const worker = WORKERS.find((w) => w.id === t.worker_id);
+      return {
+        ...t,
+        worker_name: worker ? worker.name : "Inconnu",
+      };
+    });
+
+    res.json(transportsWithWorkerName);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// Route pour obtenir le résumé du montant total et des quantités
+// Route pour supprimer un transport
+app.delete("/api/transports/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pool.query(
+      "DELETE FROM transports WHERE id = $1 RETURNING *;",
+      [id]
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Transport non trouvé." });
+    }
+    res.json({ message: "Transport supprimé avec succès." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// NOUVELLE ROUTE : Supprime tout l'historique des transports
+app.delete("/api/transports/all", async (req, res) => {
+  try {
+    await pool.query("DELETE FROM transports;");
+    res.json({ message: "Historique complet supprimé avec succès." });
+  } catch (err) {
+    console.error("Erreur lors de la suppression de tout l'historique:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Routes API pour les résumés ---
+
+// Route pour obtenir le résumé global du montant total et des quantités
 app.get("/api/summary", async (req, res) => {
   try {
-    const totalAmountResult = await pool.query(`
-      SELECT COALESCE(SUM(amount), 0)::numeric as total_amount
+    const result = await pool.query(`
+      SELECT
+          COALESCE(SUM(amount), 0)::numeric AS total_amount,
+          COALESCE(SUM(CASE WHEN type = 'sac' THEN quantity ELSE 0 END), 0)::int AS total_sacs,
+          COALESCE(SUM(CASE WHEN type = 'bal' THEN quantity ELSE 0 END), 0)::int AS total_bals
       FROM transports;
     `);
-
-    const transportCountsResult = await pool.query(`
-      SELECT type, COALESCE(SUM(quantity), 0)::int as total_quantity
-      FROM transports
-      GROUP BY type;
-    `);
-
-    // Formater les résultats pour les rendre faciles à utiliser
-    const totalAmount = parseInt(totalAmountResult.rows[0].total_amount) || 0;
-    const transportCounts = {
-      sac: 0,
-      bal: 0,
-    };
-
-    transportCountsResult.rows.forEach((row) => {
-      transportCounts[row.type] = row.total_quantity;
-    });
-
+    const summaryData = result.rows[0];
     res.json({
-      total_amount: totalAmount,
-      counts: transportCounts,
+      total_amount: parseFloat(summaryData.total_amount),
+      counts: {
+        sac: summaryData.total_sacs,
+        bal: summaryData.total_bals,
+      },
     });
   } catch (err) {
-    console.error("Erreur lors du chargement du résumé:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
-// Route pour supprimer un transport spécifique
-app.delete("/api/transports/:id", async (req, res) => {
-  const transportId = req.params.id;
-  try {
-    const result = await pool.query("DELETE FROM transports WHERE id = $1;", [
-      transportId,
-    ]);
-    if (result.rowCount === 0) {
-      res.status(404).json({ message: "Transport non trouvé." });
-    } else {
-      res.status(200).json({ message: "Transport supprimé avec succès." });
-    }
-  } catch (err) {
+    console.error("Erreur lors du chargement du résumé optimisé:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Démarrer le serveur
+// Nouvelle route pour le résumé par transporteur
+app.get("/api/summary/by-worker", async (req, res) => {
+  try {
+    const result = await pool.query(`
+            SELECT
+                worker_id,
+                COALESCE(SUM(amount), 0)::numeric AS total_amount,
+                COALESCE(SUM(CASE WHEN type = 'sac' THEN quantity ELSE 0 END), 0)::int AS total_sacs,
+                COALESCE(SUM(CASE WHEN type = 'bal' THEN quantity ELSE 0 END), 0)::int AS total_bals
+            FROM transports
+            GROUP BY worker_id
+            ORDER BY worker_id;
+        `);
+
+    // Ajout du nom du transporteur à partir du tableau statique
+    const summariesWithWorkerName = result.rows.map((s) => {
+      const worker = WORKERS.find((w) => w.id === s.worker_id);
+      return {
+        ...s,
+        worker_name: worker ? worker.name : "Inconnu",
+      };
+    });
+
+    res.json(summariesWithWorkerName);
+  } catch (err) {
+    console.error("Erreur lors du chargement du résumé par transporteur:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Servir les fichiers statiques (Frontend)
+app.use(express.static(path.join(__dirname, "public")));
+app.get("/service-worker.js", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "public", "service-worker.js"), {
+    headers: {
+      "Content-Type": "application/javascript",
+    },
+  });
+});
+app.get("/manifest.json", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "public", "manifest.json"));
+});
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Lancement du serveur
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

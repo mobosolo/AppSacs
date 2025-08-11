@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gestion des Transports - Lomé</title>
+    <title>Gestion des Transports</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="manifest" href="/manifest.json" />
   </head>
@@ -11,67 +11,79 @@
     <div class="container">
       <h1>Agbanté</h1>
 
-      <section class="transport-section">
-        <h2>Enregistrer un Transport</h2>
-        <div class="input-group">
-          <label for="transportType">Type de Transport :</label>
-          <select id="transportType">
-            <option value="">Sélectionner un type</option>
-            <option value="sac">Sac (500 FCFA)</option>
-            <option value="bal">Bal (2500 FCFA)</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label for="quantity">Quantité :</label>
-          <input type="number" id="quantity" min="1" value="1" />
-        </div>
-        <p class="calculated-amount">
-          Montant estimé : <span id="calculatedAmount">0 FCFA</span>
-        </p>
-        <div class="buttons">
-          <button id="addTransportBtn" class="add-btn">
-            Enregistrer Transport
-          </button>
-        </div>
+      <section class="form-card">
+        <h2>Enregistrer un transport</h2>
+        <form id="transportForm">
+          <div class="form-group">
+            <label for="workerSelect">Transporteur:</label>
+            <select id="workerSelect" required></select>
+          </div>
+          <div class="form-group">
+            <label for="transportType">Type de transport:</label>
+            <select id="transportType" required>
+              <option value="">-- Choisir un type --</option>
+              <option value="sac">Sac</option>
+              <option value="bal">Bal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="quantity">Quantité:</label>
+            <input type="number" id="quantity" value="1" min="1" required />
+          </div>
+          <div class="calculated-amount">
+            Montant calculé: <span id="calculatedAmount">0 FCFA</span>
+          </div>
+          <button type="submit" id="submitBtn">Enregistrer</button>
+        </form>
       </section>
-
-      <hr />
 
       <section class="summary-card">
         <h2>Résumé de l'activité</h2>
         <div class="summary-item">
-          <span>Montant Total à Payer :</span>
+          <span>Montant total dû au travailleur :</span>
           <span id="totalAmountSummary" class="highlight">0 FCFA</span>
         </div>
         <div class="summary-item">
-          <span>Nombre Total de Sacs :</span>
+          <span>Nombre total de sacs :</span>
           <span id="sacCount" class="highlight">0</span>
         </div>
         <div class="summary-item">
-          <span>Nombre Total de Bals :</span>
+          <span>Nombre total de bals :</span>
           <span id="balCount" class="highlight">0</span>
         </div>
       </section>
 
-      <hr />
+      <section class="workers-summary-card history-card">
+        <h2>Récapitulatif par transporteur</h2>
+        <div id="workersSummaryContainer"></div>
+      </section>
 
-      <section class="history-section">
-        <h2>Historique des Transports</h2>
+      <section class="history-card">
+        <h2>Historique des transports</h2>
         <table id="transportsTable">
           <thead>
             <tr>
-              <th>Date</th>
+              <th>Transporteur</th>
               <th>Type</th>
-              <th>Qté</th>
+              <th>Quantité</th>
               <th>Montant</th>
+              <th>Date</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
+        <button
+          id="deleteAllBtn"
+          class="delete-btn"
+          style="width: 100%; margin-top: 20px"
+        >
+          Supprimer tout l'historique
+        </button>
       </section>
     </div>
 
     <script src="script.js"></script>
+    <script src="service-worker.js"></script>
   </body>
 </html>
